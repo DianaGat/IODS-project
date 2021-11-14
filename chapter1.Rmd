@@ -1,13 +1,12 @@
 
 # About the project
 
-
 ```{r echo=FALSE}
 # This is a so-called "R chunk" where you can write R code.
 date()
 ```
 
-The course seems to be very friendly to people from other spheres. I especially liked this. My background is International Relations and now I am interested in statistics. During the first lecture the assistant teacher Elina motivated me a lot as she has similar background and now succeed with data science :). 
+The course seems to be very friendly to people from other spheres. I especially liked this. My background is International Relations and now I am interested in statistics. During the first lecture the assistant teacher Elina motivated me a lot as she has similar background and now succeed with data science :).   
   The teaching team is very friendly and positive. All together it makes me feel interested in the course and I expect it will be enjoyable.
   
 ### Link to GitHub
