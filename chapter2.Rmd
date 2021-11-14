@@ -1,13 +1,81 @@
-# Insert chapter 2 title here
+# Exercise 2. Performing and interpreting regression analysis
 
-*Describe the work you have done this week and summarize your learning.*
-
-- Describe your work and results clearly. 
-- Assume the reader has an introductory course level understanding of writing and reading R code as well as statistical methods.
-- Assume the reader has no previous knowledge of your data or the more advanced methods you are using.
-
-```{r}
+```{r echo=FALSE}
 date()
 ```
 
-Here we go again...
+```{r}
+data <- read.table("learning2014", sep = " " , header=TRUE)
+```
+The dataset was conducted 3.12.2014 - 10.1.2015 and created 2015 by Teachers' Academy funding for Kimmo Vehkalahti. THis is the data obtained from international survey of the students taking Introduction to Social Statistics, fall 2014 (in Finnish) course. Data set of Kimmo measures Approaches to Learning. I kept variables of interest for my exercise.
+
+The information on the intial dataset can be found in the following link: <https://www.mv.helsinki.fi/home/kvehkala/JYTmooc/JYTOPKYS3-meta.txt>
+
+In my datset, I have 7 dimentions accordingly to the numnder of variables.  
+Variables names and short descriptions of my dataset:
+
+Age - Age (in years) derived from the date of birth  
+Attitude - Global attitude toward statistics  
+Points - Exam points  
+gender - Gender: M (Male), F (Female)  
+Stra_adj - Scores of students on startegic learning referring to the way how students organize their studies. Computed variable  
+Surf_adj - Scores of students on surface learning referring to the memorizing without understanding, with lack of personal engagement way of studing. Computed variable  
+Deep_adj - Scores of students on deep learning referring to intention to understand better, with a true commitment to work during studies. Computed variable  
+
+Information about creating the computed variables is found in: <http://www.helsinki.fi/~kvehkala/JYTmooc/JYTOPKYS2-meta.txt>
+
+Some additional information on the variables can be found in the following link: <https://www.slideshare.net/kimmovehkalahti/the-relationship-between-learning-approaches-and-students-achievements-in-an-introductory-statistics-course-in-finland>
+
+```{r include=FALSE}
+options(repos="https://cran.rstudio.com" )
+```
+### Plot matrix
+```{r}
+install.packages("ggplot2")
+install.packages("GGally")
+library(GGally) 
+library(ggplot2)
+p <- ggpairs(data, mapping = aes(col = gender, alpha = 0.3), lower = list(combo = wrap("facethist", bins = 20)))
+p
+```
+From the plot ,matrix we can see that Attitude values are strongly correlated with Points values (r = 0.437), so, I guess that the higher attitude leads to better grades. Also we can see a strong negative correlation between surface learning and deep learning (r=-0.324) that obviously means that the less efforts students put for understanding the less deep the learning is.
+
+The distribution of age is not normal, the majority of participants are from 20 to 30 years old while there are some participants that are significantly older (age vs gender and age vs age plots).
+
+We can see that in general men have stronger attitude (attitude vs attitude) and better grades (grades vs grades). 
+
+## Regression model
+We will create a regression model with attitude, strategic learning and deep learning as explanatory variables and points as dependents variable. We have chosen strategic learning and deep learning over surface learning since deep learning has strong negative correlation with surface learning, and thus, it will not explain the model significantly more.
+```{r message=FALSE, warning=FALSE, paged.print=FALSE}
+model <- lm(Points ~ Attitude + Stra_adj + Deep_adj, data = data)
+summary(model)
+```
+From the summary output we can see that the affect of attitude on dependent variable Points is statistically significant (beta = 0.3, st.error = 0.05, p < 0.05). Meanwhile, strategic learning and deep learning don`t give statistically significant effect on the points (p > 0.05).
+
+I have run the model few times with each independent variable separately, but none of them except Attitude had statistically significant effect on the dependent variable, therefore we excluded them. I will remove non-significant independent variables from the model.
+```{r}
+model <- lm(Points ~ Attitude, data = data)
+summary(model)
+```
+
+After, we fit the model again with just attitude as independent variable, we explain the summary of the model: the affect of attitude on dependent variable Points is statistically significant (beta = 0.3, st.error = 0.05, p < 0.05). 
+For the further research, we wold use just an Attitude variable as an independent variable.
+
+### Model interpretation
+
+R Squared is showing proportion of variance in the dependent variable that can be explained by the independent variables. Adjusted R squared is modified version of R2 that was adjusted for the number of predictors in the model. Looking at the output of the model, I can conclude that the model explains 20.5% of the proportion of the variance or 19.5% for Adjusted R Squared.
+
+The equation for the model is “Points = 8.97 + (0.347 * “Attitude”). The model is statistically significant (p < 0.05). The model shows that with the increase of attitude by 1, the points that can be gotten are increasing by 0.347 and the point value would be 9.317.
+
+Basically, people who have bigger score of attitude tent to get better points on the final exam.
+
+### Model validation
+```{r}
+model <- lm(Points ~ Attitude, data = data)
+par(mfrow = c(2,2))
+plot(model, which = c(1,2,5))
+```
+
+Looking at the Residual vs Fitted plot, I can say that there is no any pattern in how the residuals are spreaded. Normal Q-Q plot shows that the fit to the normal distribution is reasonable as point follow the line. Looking at the Residuals vs Leverage plot, we conclude that there is no single observation that stands out significantly that meant that there are no single observation that strongly affect the fit line.
+
+Therefore, I assume that the model meet assumptions.
