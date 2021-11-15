@@ -31,8 +31,8 @@ options(repos="https://cran.rstudio.com" )
 ```
 ### Plot matrix
 ```{r}
-install.packages("ggplot2")
 install.packages("GGally")
+install.packages("ggplot2")
 library(GGally) 
 library(ggplot2)
 p <- ggpairs(data, mapping = aes(col = gender, alpha = 0.3), lower = list(combo = wrap("facethist", bins = 20)))
@@ -40,7 +40,7 @@ p
 ```
 From the plot ,matrix we can see that Attitude values are strongly correlated with Points values (r = 0.437), so, I guess that the higher attitude leads to better grades. Also we can see a strong negative correlation between surface learning and deep learning (r=-0.324) that obviously means that the less efforts students put for understanding the less deep the learning is.
 
-The distribution of age is not normal, the majority of participants are from 20 to 30 years old while there are some participants that are significantly older (age vs gender and age vs age plots).
+The distribution of age is not normal, the majority of participants are from 20 to 30 years old while there are some participants that are significantly older (age vs gender and age vs age plots). There are approximately twice more women then man that took part in the survey (gender va gender).
 
 We can see that in general men have stronger attitude (attitude vs attitude) and better grades (grades vs grades). 
 
@@ -63,9 +63,9 @@ For the further research, we wold use just an Attitude variable as an independen
 
 ### Model interpretation
 
-R Squared is showing proportion of variance in the dependent variable that can be explained by the independent variables. Adjusted R squared is modified version of R2 that was adjusted for the number of predictors in the model. Looking at the output of the model, I can conclude that the model explains 20.5% of the proportion of the variance or 19.5% for Adjusted R Squared.
+R Squared is showing proportion of variance in the dependent variable that can be explained by the independent variables. Adjusted R squared is modified version of R2 that was adjusted for the number of predictors in the model. Looking at the output of the model, I can conclude that the model explains 19% of the proportion of the variance or 18.6% for Adjusted R Squared.
 
-The equation for the model is “Points = 8.97 + (0.347 * “Attitude”). The model is statistically significant (p < 0.05). The model shows that with the increase of attitude by 1, the points that can be gotten are increasing by 0.347 and the point value would be 9.317.
+The equation for the model is “Points = 8.97 + (0.353 * “Attitude”). The model is statistically significant (p < 0.05). The model shows that with the increase of attitude by 1, the points that can be gotten are increasing by 0.353 and the point value would be 9.323.
 
 Basically, people who have bigger score of attitude tent to get better points on the final exam.
 
