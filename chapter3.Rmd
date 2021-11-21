@@ -1,0 +1,231 @@
+---
+author: "Diana Hilleshein"
+output: html_document
+---
+# Exercise 3. Performing and interpreting logistic regression analysis"
+```{r echo=FALSE}
+date()
+```
+```{r}
+data <- read.csv("C:/R scripts/IODS-project/data/pormath.csv", header =T)
+colnames(data)
+str(data)
+dim(data)
+```
+## Information on dataset
+The dataset was merged form two datasets taken from UCI Machine learning repository: <https://archive.ics.uci.edu/ml/datasets/Student+Performance>.
+
+The initial datasets approach student achievement in secondary education, providing the data on the performance in two subjects: Mathematics (mat) and Portuguese language (por). The data was collected by using school reports and questionnaires.
+
+A new datset includes only the observations from students present in both datasets (inner_join function), and it was joined using all other variables than "failures", "paid", "absences", "G1", "G2", "G3". To combine the 'duplicated' answers in the joined data I took rounded average of each row of the two columns for numeric column vectors and took first column vector for not numeric column vectors.
+
+Also, new variables were added: 'alc_use' as the average of 'Dalc' and 'Walc' and 'high_use' is TRUE if 'alc_use' is higher than 2 and FALSE otherwise.
+
+### Variable information:  
+1 school - student's school (binary: 'GP' - Gabriel Pereira or 'MS' - Mousinho da Silveira)  
+2 sex - student's sex (binary: 'F' - female or 'M' - male)  
+3 age - student's age (numeric: from 15 to 22)  
+4 address - student's home address type (binary: 'U' - urban or 'R' - rural)  
+5 famsize - family size (binary: 'LE3' - less or equal to 3 or 'GT3' - greater than 3)  
+6 Pstatus - parent's cohabitation status (binary: 'T' - living together or 'A' - apart)  
+7 Medu - mother's education (numeric: 0 - none, 1 - primary education (4th grade), 2 â€“ 5th to 9th grade, 3 â€“ secondary education or 4 â€“ higher education)  
+8 Fedu - father's education (numeric: 0 - none, 1 - primary education (4th grade), 2 â€“ 5th to 9th grade, 3 â€“ secondary education or 4 â€“ higher education)  
+9 Mjob - mother's job (nominal: 'teacher', 'health' care related, civil 'services' (e.g. administrative or police), 'at_home' or 'other')  
+10 Fjob - father's job (nominal: 'teacher', 'health' care related, civil 'services' (e.g. administrative or police), 'at_home' or 'other')  
+11 reason - reason to choose this school (nominal: close to 'home', school 'reputation', 'course' preference or 'other')  
+12 guardian - student's guardian (nominal: 'mother', 'father' or 'other')  
+13 traveltime - home to school travel time (numeric: 1 - <15 min., 2 - 15 to 30 min., 3 - 30 min. to 1 hour, or 4 - >1 hour)  
+14 studytime - weekly study time (numeric: 1 - <2 hours, 2 - 2 to 5 hours, 3 - 5 to 10 hours, or 4 - >10 hours)  
+15 failures - average, number of past class failures (numeric: n if 1<=n<3, else 4)  
+16 schoolsup - extra educational support (binary: yes or no)  
+17 famsup - family educational support (binary: yes or no)  
+18 paid - first, extra paid classes within the course subject (Math or Portuguese) (binary: yes or no)  
+19 activities - extra-curricular activities (binary: yes or no)  
+20 nursery - attended nursery school (binary: yes or no)  
+21 higher - wants to take higher education (binary: yes or no)  
+22 internet - Internet access at home (binary: yes or no)  
+23 romantic - with a romantic relationship (binary: yes or no)  
+24 **famrel - quality of family relationships (numeric: from 1 - very bad to 5 - excellent)**  
+25 **freetime - free time after school (numeric: from 1 - very low to 5 - very high)**  
+26 **goout - going out with friends (numeric: from 1 - very low to 5 - very high)**  
+27 Dalc - workday alcohol consumption (numeric: from 1 - very low to 5 - very high)  
+28 Walc - weekend alcohol consumption (numeric: from 1 - very low to 5 - very high)  
+29 health - current health status (numeric: from 1 - very bad to 5 - very good)  
+30 **absences - average, number of school absences (numeric: from 0 to 93)**  
+31 G1 - average, first period grade (numeric: from 0 to 20)  
+31 G2 - average, second period grade (numeric: from 0 to 20)  
+32 G3 - average, final grade (numeric: from 0 to 20, output target)  
+33 alc_use - average weekday and weekend alcohol consumption (numeric)  
+34 **high_use - logical, if average weekday and weekend alcohol consumption is high (> 2) (logical: T, F)**  
+*Common variables fro the initial datasets that were not used for joining:*  
+35 G1.m - first period grade in Mathematics (numeric: from 0 to 20)  
+36 G2.m - second period grade in Mathematics (numeric: from 0 to 20)  
+37 G3.m - final grade in Mathematics (numeric: from 0 to 20, output target)  
+38 G1.p - first period grade in Portuguese (numeric: from 0 to 20)  
+39 G2.p - second period grade in Portuguese(numeric: from 0 to 20)  
+40 G3.p - final grade in Portuguese (numeric: from 0 to 20, output target)  
+41 paid.m - extra paid classes within the course subject Math (binary: yes or no)  
+42 paid.p - extra paid classes within the course subject Portuguese (binary: yes or no)  
+43 failures.m - number of past class failures in Mathematics (numeric: n if 1<=n<3, else 4)  
+44 failures.p - number of past class failures in Portuguese (numeric: n if 1<=n<3, else 4)  
+45 absences.m - number of school absences in Mathematics (numeric: from 0 to 93)  
+46 absences.p - number of school absences in Portuguese (numeric: from 0 to 93)  
+
+Using the datase we will study the relationships between high/low odds of alcohol consumption and 1) quality of family relationships ("famrel" -categorical), 2) frequency of hanging out with friends ("goout" -categorical), 3) number of school absences ("absences" -continuous), 4) free time after school ("freetime" - continuous).  
+
+## Hypothesis  
+
+I will present my hypothesis about association with alcohol consumption for each chosen variable:  
+1) **"famrel"**: students with the worse relationship in a family have higher odd of high alcohol consumption;  
+2) **"goout"**: the more go out with friend, the higher odds og high alcohol consumption;  
+3) **"absences"**: students with bigger number of school absences are more likely to have higher odds of high alcohol consumption;  
+4) **"freetime"**: the more free time after school, the higher odds of high alcohol consumption.
+
+## Exploration of variables and their rleationships
+
+```{r echo=TRUE, message=FALSE, warning=FALSE}
+install.packages("tidyverse", repos = "http://cran.us.r-project.org")
+install.packages("GGally", repos = "http://cran.us.r-project.org")
+install.packages("ggplot2", repos = "http://cran.us.r-project.org")
+install.packages("cowplot", repos = "http://cran.us.r-project.org")
+
+library(GGally)
+library(ggplot2)
+library(tidyverse)
+library(cowplot)
+
+# draw a bar plot of each variable
+my_data <- select(data, "high_use", "famrel","absences", "freetime", "goout", "sex")
+gather(my_data) %>% ggplot(aes(value)) + facet_wrap("key", scales = "free") + geom_bar()
+```
+Take a quik look at the bar blot for every variable. There are similar number of male and female participants. The number of people who have high alcohol consumtion is almost twice smaller in comparison to people who don not drink much. In average participants have good relationship in family and from average to a lot of free time. According to the plot, participants from low to average number of times. The number of absences is not normally distributed: there are three peaks in the frequencies - at the beggining (0), in the middle(20), at the end(30-40,50-90).
+```{r warning=FALSE}
+# looking through distributions
+distribution1 <- ggplot(data, aes(x = high_use, y = famrel))+ geom_boxplot()
+distribution2 <- ggplot(data, aes(x = high_use, y = freetime))+ geom_boxplot()
+distribution3 <- ggplot(data, aes(x = high_use, y = absences))+ geom_boxplot()
+distribution4 <- ggplot(data, aes(x = high_use, y = goout))+ geom_boxplot()
+#distribution3 <- ggplot(data, aes(x = romantic, fill = high_use))+ geom_bar()
+#distribution4 <- ggplot(data, aes(x = activities, fill = high_use))+ geom_bar()
+
+dist<-plot_grid(distribution1, distribution2, distribution3, distribution4, labels = c('1', '2', '3', '4'),
+  align="hv"
+)
+dist
+
+```
+Firstly, I will evaluate distribution for the chosen categorical variables. We can see that both people with high and low alcoghol consumption think that relations in their family are good (median is 4, high_use vs famrel). However the distributions are skewed, and we can see that more people who have low alcohol consumption tend to believe that relation in their family are excellent (5, distribution skewed to the right) while more of people with high level of alcohol consumption tend to think that relation in their family fall to  average level (3, distribution skewed to the left). Therefore, people who have worse family relation tend to drink more. The results confirms the hypothesis.  
+
+On the second boxplot, hight_use vs freetime, we can see that plots are the same, thus I can not confirm the hypothesis.  
+
+On the plot for absences, we can see that median for two groups of people are almost the same, but the distribution is skewed to the right for "heavy drinkers", also, maximum is higher for them. It makes us assume, that the hypothesis was right and "heavy drinkers" have more abscesses.  
+
+On the lats boxplot, high_use vs goout, the median for pope with low level of alcohol consumption is on the average level (3) and the distribution is skewed to the left with maximum at 4. Meanwhile, median for people with high alcohol consumption is referring to high probability of going out (4) with maximum at very high probability of going out (5). Therefore, I can confirm the hypothesis claiming that people who go out more often have higher odds of high alcohol consumption.  
+
+Additionally, I will take a look at the the bar plots for the variables.  
+```{r}
+# initialize a plot of alcohol use
+g1 <- ggplot(data = data, aes(x = goout, fill = high_use)) + geom_bar()
+
+# initialize a plot of alcohol use
+g2 <- ggplot(data = data, aes(x = famrel, fill = high_use)) + geom_bar()
+# initialize a plot of alcohol use
+g3 <- ggplot(data = data, aes(x = absences, fill = high_use)) + geom_bar()
+# initialize a plot of alcohol use
+g4 <- ggplot(data = data, aes(x = freetime, fill = high_use))+ geom_bar()
+
+
+plot_grid(
+  g1, g2, g3, g4,
+  labels = c('1', '2', '3', '4'),
+  align="hv"
+)
+```
+We clearly see that with increase in goout there are more "heavy drinkers" than people who drink below average (plot 1).  
+It is not so clear to see any patterns on the second plot.  
+On the third plot, there are slightly more "heavy drinkers" with increase in number of absences.  
+And on the fourth, it is obvious, that with increase of free time, there are more people who havw high alcohol consumption.  
+
+```{r warning=FALSE}
+install.packages("sjPlot", repos = "http://cran.us.r-project.org")
+library(sjPlot)
+tab_xtab(var.row = data$high_use, var.col = data$freetime)
+tab_xtab(var.row = data$high_use, var.col = data$absences)
+tab_xtab(var.row = data$high_use, var.col = data$goout)
+tab_xtab(var.row = data$high_use, var.col = data$famrel)
+```
+As the result of crosstablation I got statistically significant correlation between each variable and high_use (p < 0.05), but family relation variable ("famrel", p > 0.05). 
+
+## Logistic regression model
+Before conducting the analysis, I indicate that freetime, famrel and goout are categorical factors, thus, I should threat them as factors here.
+```{r echo=TRUE, message=FALSE, warning=FALSE}
+data$freetime = as.factor(data$freetime)
+data$famrel = as.factor(data$famrel)
+data$goout = as.factor(data$goout)
+# find the model with glm()
+m <- glm(high_use ~ freetime + absences + goout + famrel, data = data, family = "binomial")
+
+summary(m)
+
+```
+I got summary of the logical regression model. Coefficients correspond to the following model: high_use = -3.272(b0) + (0.923xfreetime) + (0.078xabsences) + (0.339xgoout) + (0.348xfamrel) and so on for different categories. However, the results are statistically significant just for goout5 (p<0.05, z-value=2.524) and goingout4 (p<0.05, z-value = 3.191) (very high and high probability of goint out) and abscences(p<0.05, z-value = 3.504).
+
+```{r echo=TRUE, message=FALSE, warning=FALSE}
+# compute odds ratios (OR)
+OR <- coef(m) %>% exp
+# compute confidence intervals (CI)
+CI<-confint(m) %>% exp
+
+# print out the odds ratios with their confidence intervals
+cbind(OR, CI)
+```
+In the output we can find odds ratios and their confidence intervals.There are no statistically significant results for freetime variable as CI cross 1, thus, association is not significant.  
+CI for OR of absences are statistically significant. OR = 1.08, thus, the model shows that with the increase for absences, the odds of high alcohol use are increasing.   
+Goout1 (the probability to go out is very low) is the reference category for goout variable. CI fro OR of goout4 and goout5 are significant (not crossing 1): participants who has high probability to go out (goout4), have 6.09-fold odds being "heavy drinkers" in comparison to people who have very low probability to go out (goout1). Similary, participants who has very high probability to go out (goout5), have 10.58-fold odds being "heavy drinkers".  
+The rest of the categories are not statistically significant.
+Finding for the significant cases confirmed the hypothesis regarding association of absences and going out with friend with the odds of having high alcohol consumption level.  
+
+## Prediction of the model  
+I fit the logistic regression with statistically significant predictors absences and goout and predict the probability of high_use. After I add the new columns I use confusion matrix.
+```{r echo=TRUE, message=FALSE, warning=FALSE}
+m2 <- glm(high_use ~ absences + goout, data = data, family = "binomial")
+
+# predict() the probability of high_use
+probabilities <- predict(m2, type = "response")
+
+# add the predicted probabilities to data
+data <- mutate(data, probability = probabilities)
+
+# use the probabilities to make a prediction of high_use
+data <- mutate(data, prediction = probability > 0.5)
+
+#checking the changes
+select(data, goout, absences, high_use, probability, prediction) %>% tail(10)
+
+# tabulate the target variable versus the predictions
+
+library(caret)
+true <- as.factor(data$high_use)
+probabilities <- as.factor(data$prediction)
+confusionMatrix(data=probabilities, reference=true)
+```
+The confusion matrix shows that 61 and 31 results were bredicted faulty. As (61 + 31)/380 = 0.24, 24% of the predictions were faulty.
+Next step is to compute the total proportion of inaccurately classified individuals.
+```{r echo=TRUE, message=FALSE, warning=FALSE}
+# define a loss function (average prediction error)
+loss_func <- function(class, prob) {
+  n_wrong <- abs(class - prob) > 0.5
+  mean(n_wrong)
+}
+
+# call loss_func to compute the average number of wrong predictions in the (training) data
+loss_func(class = data$high_use, prob = data$probability)
+
+# random guess
+mean(data$high_use)
+
+```
+Evaluation the results, we can say that the model misclassifices 25% of the training cases.  
+The random guess will give 30% mistake if we guess that every person does not have high alcohol consumption. Meanwhile, the model would have 25% mistake. That means that model is just slightly better than the random guess.
+```{r}
+```
