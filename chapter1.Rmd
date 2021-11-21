@@ -1,5 +1,5 @@
 
-# About the project
+## About the project
 
 ```{r echo=FALSE}
 # This is a so-called "R chunk" where you can write R code.
