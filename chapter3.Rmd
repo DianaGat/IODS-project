@@ -1,9 +1,9 @@
 ---
+title: "Exercise 3. Performing and interpreting logistic regression analysis"
 author: "Diana Hilleshein"
 output: html_document
 ---
-# Exercise 3. Performing and interpreting logistic regression analysis"
-```{r echo=FALSE}
+```{r eval=FALSE, include=FALSE}
 date()
 ```
 ```{r}
@@ -228,4 +228,11 @@ mean(data$high_use)
 Evaluation the results, we can say that the model misclassifices 25% of the training cases.  
 The random guess will give 30% mistake if we guess that every person does not have high alcohol consumption. Meanwhile, the model would have 25% mistake. That means that model is just slightly better than the random guess.
 ```{r}
+# K-fold cross-validation
+library(boot)
+cv <- cv.glm(data = data, cost = loss_func, glmfit = m, K = 10)
+
+# average number of wrong predictions in the cross validation
+cv$delta[1]
 ```
+Cross-validation analysis shows that the model have approximately 26% mistake in the prediction. Againg, it is just slightly better, than the random guess bases on the percentage of "heavy drinkers" in the data. Thus, the model doesn`t have good predictive power.

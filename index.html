@@ -178,9 +178,6 @@ pre code {
 <li><a href="#exercise-2.-performing-and-interpreting-regression-analysis">Exercise 2. Performing and interpreting regression analysis</a>
 <ul>
 <li><a href="#regression-model">Regression model</a></li>
-</ul></li>
-<li><a href="#exercise-3.-performing-and-interpreting-logistic-regression-analysis">Exercise 3. Performing and interpreting logistic regression analysis”</a>
-<ul>
 <li><a href="#information-on-dataset">Information on dataset</a></li>
 <li><a href="#hypothesis">Hypothesis</a></li>
 <li><a href="#exploration-of-variables-and-their-rleationships">Exploration of variables and their rleationships</a></li>
@@ -195,7 +192,6 @@ pre code {
 <h1>Introduction to Open Data Science - Course Project</h1>
 <div id="about-the-project" class="section level2">
 <h2>About the project</h2>
-<pre><code>## [1] &quot;Sun Nov 21 12:09:49 2021&quot;</code></pre>
 <p>The course seems to be very friendly to people from other spheres. I especially liked this. My background is International Relations and now I am interested in statistics. During the first lecture the assistant teacher Elina motivated me a lot as she has similar background and now succeed with data science :).<br />
 The teaching team is very friendly and positive. All together it makes me feel interested in the course and I expect it will be enjoyable.</p>
 <div id="link-to-github" class="section level3">
@@ -207,7 +203,6 @@ The teaching team is very friendly and positive. All together it makes me feel i
 </div>
 <div id="exercise-2.-performing-and-interpreting-regression-analysis" class="section level1">
 <h1>Exercise 2. Performing and interpreting regression analysis</h1>
-<pre><code>## [1] &quot;Sun Nov 21 12:09:49 2021&quot;</code></pre>
 <pre class="r"><code>data &lt;- read.table(&quot;http://s3.amazonaws.com/assets.datacamp.com/production/course_2218/datasets/learning2014.txt&quot;, sep = &quot;,&quot; , header=TRUE)
 str(data)</code></pre>
 <pre><code>## &#39;data.frame&#39;:    166 obs. of  7 variables:
@@ -239,14 +234,14 @@ deep - Scores of students on deep learning referring to intention to understand 
 <pre><code>## package &#39;GGally&#39; successfully unpacked and MD5 sums checked
 ## 
 ## The downloaded binary packages are in
-##  C:\Users\chibi\AppData\Local\Temp\RtmpmGGUGf\downloaded_packages</code></pre>
+##  C:\Users\chibi\AppData\Local\Temp\RtmpwrE1SE\downloaded_packages</code></pre>
 <pre class="r"><code>install.packages(&quot;ggplot2&quot;)</code></pre>
 <pre><code>## Installing package into &#39;C:/Users/chibi/Documents/R/win-library/4.1&#39;
 ## (as &#39;lib&#39; is unspecified)</code></pre>
 <pre><code>## package &#39;ggplot2&#39; successfully unpacked and MD5 sums checked
 ## 
 ## The downloaded binary packages are in
-##  C:\Users\chibi\AppData\Local\Temp\RtmpmGGUGf\downloaded_packages</code></pre>
+##  C:\Users\chibi\AppData\Local\Temp\RtmpwrE1SE\downloaded_packages</code></pre>
 <pre class="r"><code>library(GGally) </code></pre>
 <pre><code>## Loading required package: ggplot2</code></pre>
 <pre><code>## Registered S3 method overwritten by &#39;GGally&#39;:
@@ -322,12 +317,6 @@ plot(model, which = c(1,2,5))</code></pre>
 <p>Looking at the Residual vs Fitted plot, I can say that there is no any pattern in how the residuals are spreaded. Normal Q-Q plot shows that the fit to the normal distribution is reasonable as point follow the line. Looking at the Residuals vs Leverage plot, we conclude that there is no single observation that stands out significantly that meant that there are no single observation that strongly affect the fit line.</p>
 <p>Therefore, I assume that the model meet assumptions.</p>
 <hr />
-</div>
-</div>
-</div>
-<div id="exercise-3.-performing-and-interpreting-logistic-regression-analysis" class="section level1">
-<h1>Exercise 3. Performing and interpreting logistic regression analysis”</h1>
-<pre><code>## [1] &quot;Sun Nov 21 12:10:03 2021&quot;</code></pre>
 <pre class="r"><code>data &lt;- read.csv(&quot;C:/R scripts/IODS-project/data/pormath.csv&quot;, header =T)
 colnames(data)</code></pre>
 <pre><code>##  [1] &quot;X&quot;          &quot;school&quot;     &quot;sex&quot;        &quot;age&quot;        &quot;address&quot;   
@@ -397,6 +386,8 @@ colnames(data)</code></pre>
 ##  $ cid       : int  3001 3002 3003 3004 3005 3006 3007 3008 3009 3010 ...</code></pre>
 <pre class="r"><code>dim(data)</code></pre>
 <pre><code>## [1] 370  52</code></pre>
+</div>
+</div>
 <div id="information-on-dataset" class="section level2">
 <h2>Information on dataset</h2>
 <p>The dataset was merged form two datasets taken from UCI Machine learning repository: <a href="https://archive.ics.uci.edu/ml/datasets/Student+Performance" class="uri">https://archive.ics.uci.edu/ml/datasets/Student+Performance</a>.</p>
@@ -470,14 +461,14 @@ colnames(data)</code></pre>
 <pre><code>## package &#39;tidyverse&#39; successfully unpacked and MD5 sums checked
 ## 
 ## The downloaded binary packages are in
-##  C:\Users\chibi\AppData\Local\Temp\RtmpmGGUGf\downloaded_packages</code></pre>
+##  C:\Users\chibi\AppData\Local\Temp\RtmpwrE1SE\downloaded_packages</code></pre>
 <pre class="r"><code>install.packages(&quot;GGally&quot;, repos = &quot;http://cran.us.r-project.org&quot;)
 install.packages(&quot;ggplot2&quot;, repos = &quot;http://cran.us.r-project.org&quot;)
 install.packages(&quot;cowplot&quot;, repos = &quot;http://cran.us.r-project.org&quot;)</code></pre>
 <pre><code>## package &#39;cowplot&#39; successfully unpacked and MD5 sums checked
 ## 
 ## The downloaded binary packages are in
-##  C:\Users\chibi\AppData\Local\Temp\RtmpmGGUGf\downloaded_packages</code></pre>
+##  C:\Users\chibi\AppData\Local\Temp\RtmpwrE1SE\downloaded_packages</code></pre>
 <pre class="r"><code>library(GGally)
 library(ggplot2)
 library(tidyverse)
@@ -530,7 +521,7 @@ And on the fourth, it is obvious, that with increase of free time, there are mor
 <pre><code>## package &#39;sjPlot&#39; successfully unpacked and MD5 sums checked
 ## 
 ## The downloaded binary packages are in
-##  C:\Users\chibi\AppData\Local\Temp\RtmpmGGUGf\downloaded_packages</code></pre>
+##  C:\Users\chibi\AppData\Local\Temp\RtmpwrE1SE\downloaded_packages</code></pre>
 <pre class="r"><code>library(sjPlot)</code></pre>
 <pre><code>## Learn more about sjPlot with &#39;browseVignettes(&quot;sjPlot&quot;)&#39;.</code></pre>
 <pre><code>## 
@@ -994,7 +985,7 @@ Total
 </td>
 </tr>
 <td style="text-align:right; font-size:0.9em; font-style:italic; padding:0.2cm;" colspan="28">
-χ<sup>2</sup>=43.001 · df=25 · Cramer’s V=0.341 · Fisher’s p=0.004
+χ<sup>2</sup>=43.001 · df=25 · Cramer’s V=0.341 · Fisher’s p=0.003
 </td>
 </tr>
 </table>
@@ -1202,7 +1193,7 @@ Total
 </td>
 </tr>
 <td style="text-align:right; font-size:0.9em; font-style:italic; padding:0.2cm;" colspan="7">
-χ<sup>2</sup>=8.466 · df=4 · Cramer’s V=0.151 · Fisher’s p=0.087
+χ<sup>2</sup>=8.466 · df=4 · Cramer’s V=0.151 · Fisher’s p=0.064
 </td>
 </tr>
 </table>
@@ -1356,6 +1347,19 @@ mean(data$high_use)</code></pre>
 <pre><code>## [1] 0.3</code></pre>
 <p>Evaluation the results, we can say that the model misclassifices 25% of the training cases.<br />
 The random guess will give 30% mistake if we guess that every person does not have high alcohol consumption. Meanwhile, the model would have 25% mistake. That means that model is just slightly better than the random guess.</p>
+<pre class="r"><code># K-fold cross-validation
+library(boot)</code></pre>
+<pre><code>## 
+## Attaching package: &#39;boot&#39;</code></pre>
+<pre><code>## The following object is masked from &#39;package:lattice&#39;:
+## 
+##     melanoma</code></pre>
+<pre class="r"><code>cv &lt;- cv.glm(data = data, cost = loss_func, glmfit = m, K = 10)
+
+# average number of wrong predictions in the cross validation
+cv$delta[1]</code></pre>
+<pre><code>## [1] 0.2594595</code></pre>
+<p>Cross-validation analysis shows that the model have approximately 26% mistake in the prediction. Againg, it is just slightly better, than the random guess bases on the percentage of “heavy drinkers” in the data. Thus, the model doesn`t have good predictive power.</p>
 <p>(more chapters to be added similarly as we proceed with the course!)</p>
 </div>
 </div>
