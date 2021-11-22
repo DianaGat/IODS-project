@@ -1,6 +1,6 @@
 # Exercise 2. Performing and interpreting regression analysis
 
-```{r echo=FALSE}
+```{r eval=FALSE, include=FALSE}
 date()
 ```
 

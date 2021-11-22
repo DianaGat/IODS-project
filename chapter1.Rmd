@@ -1,7 +1,7 @@
 
 ## About the project
 
-```{r echo=FALSE}
+```{r eval=FALSE, include=FALSE}
 # This is a so-called "R chunk" where you can write R code.
 date()
 ```
