@@ -1,0 +1,146 @@
+---
+output: html_document
+---
+# Dimention reduction  
+
+## Descriptions on the data  
+
+The data is a joined data set of Human Development Index and Gender Development Index that is originated from the United Nations Development Programme’s website. Source of the data: <http://hdr.undp.org/en/content/human-development-index-hdi>.  
+The data has the following variables:
+
+1) hdirank = HDI ranking for countries  
+2) Country = Country name  
+3) hdi = Human Development Index (HDI)  
+4) lifeexp = Life expectancy at birth  
+5) expedu = Expected years of schooling   
+6) meanedu = Mean years of schooling  
+7) gni  = Gross National Income (GNI) per capita  
+8) gni-hdi = GNI per capita rank minus HDI rank  
+9) giirank = GII ranking for countries  
+10) gii = Gender Inequality Index (GII)  
+11) matmor = Maternal mortality ratio  
+12) adobirth = Adolescent birth rate  
+13) repparl = Percetange of female representatives in parliament  
+14) edu2F = Proportion of females with at least secondary education  
+15) edu2M = Proportion of males with at least secondary education  
+16) labfF = Proportion of females in the labour force  
+17) labfM = Proportion of males in the labour force  
+18) edu2FM - the ratio of Female and Male populations with secondary education in each country (2eduF / 2eduM)  
+19) labfFM = the ratio of labour force participation of females and males in each country (labfF / labfM).  
+```{r message=FALSE, warning=FALSE}
+data <- read.table("C:/R scripts/IODS-project/data/human.csv")
+
+library(tidyr)
+library(dplyr)
+library(ggplot2)
+library(GGally)
+library(corrplot)
+
+summary (data) 
+```
+The variables in the data have different scales. Below we can see some graphic overview of the dataset.  
+Correlations:  
+1) Positive:  
+- lifeexp and edu2FM (r = 0.710), a large correlation shows that in countries with beigger life expectancy at birth there is begger ratio of Female and Male populations with secondary education  
+- expeedu and edu2FM (r = 0.778), the correlation shows that the bigger expected years of schooling, the bigger ratio of Female and Male populations with secondary education  
+- gni and eduFM (0.542), a moderate correlation shows that in countries with bigger Gross National Income (GNI) per capita there is bigger ratio of Female and Male populations with secondary education  
+- expeedu and lifeexp (r = 0.789), a large correlation shows that in countries with bigger Expected years of schooling, life expectancy at birth is bigger  
+- gni and lifeexp (r = 0.627), a moderate correlation shows that in countries that have bigger Gross National Income (GNI) per capita, life expectancy at birth is higher  
+- adobirth and matmor (r = 0.759), the large association shows that in countries with higher Adolescent birth rate, Maternal mortality ratio is higher  
+
+2) Negative
+- matmor and edu2FM (r = -0.707), a large correlation shows that in countries where Maternal mortality ratio is bigger, ratio of Female and Male populations with secondary education is smaller  
+- adobirth and edu2FM (-0.690), a large correlation shows that in countries with higher Adolescent birth rate, the ratio of Female and Male populations with secondary education is smaller  
+- expeedu and matmor/adobirth (r = -0.736, r = -0.704), large associations shows that in countries with higher Eexpected years of schooling,  Maternal mortality ratio and Adolescent birth rate are smaller  
+- gni and matmor/adobirth (r = -0.495 and r = -0.577), moderate correlation shows that in countries with higer Gross National Income (GNI) per capita, Maternal mortality ratio and Adolescent birth rate are smaller  
+The correlations are statistically significnat.  
+
+edu2FM and expeedu have a normal distribution, the distributions of the variables labfFM and lifexp are skewed to right and the distributions of the rest of the variables is skewed to left.  
+
+```{r}
+ggpairs(data, mapping = aes(alpha=0.3), lower = list(combo = wrap("facethist", bins = 20)))
+```
+## Principal component analysis (PCA)
+Firstly, the PCA is perfomed with not standartizied data.  
+
+
+```{r message=FALSE, warning=FALSE}
+# perform principal component analysis (with the SVD method)
+PCA_1 <- prcomp(data)
+
+s1 <-summary(PCA_1)
+s1
+
+PCA_1
+
+biplot(PCA_1, choices = 1:2)
+
+# rounded percentages of variance captured by each PC
+var1 <- round(100*s1$importance[2,], digits = 1) 
+
+# print out the percentages of variance
+var1
+```
+  
+The analysis gave to us 8 dimentions, one for each variable. We can see that all the principal components are not correlated. PC1 captures the biggest variance, the every next explain less and less of variabnce. When I round persentages of variance captured by each PC, we can see that the first explains 100% of variance.
+On the biplot we can see the observations represented by the first two principal components along with arrows representing the original variables.
+
+With a next step, I standartize variables and repeat the above analysis.
+```{r message=FALSE, warning=FALSE}
+# standardize the variables
+data_sc <- scale(data)
+
+# perform principal component analysis (with the SVD method)
+PCA_2 <- prcomp(data_sc)
+
+s2<- summary(PCA_2)
+s2
+
+PCA_2
+
+biplot(PCA_2, choices = 1:2)
+
+# rounded percentages of variance captured by each PC
+var2 <- round(100*s2$importance[2,], digits = 1) 
+
+# print out the percentages of variance
+var2
+```
+We can see that the results are different and it is because of different metrics/scale for different variables. The PC1 explains the most of the variance (58%) that cobines edu2FM, lifeexp, expeedu, gni, matmor, adobirth, repparl, PC2 explains 14.3% of the variance, the second component combines repparl and edu2FM.  
+
+There are few observations that I can make looking at the distribution of the countries: the rich and developed countries with good representation of men and wemen are lokated on the upper left corned (countries such as Norvay, Iceland and so on); on the lower left corner there are rich and developed countries that, however have some issues with representation of women in parliament of work places (countries like Saudi Arabia). On the right side there are countries that are less wealty: on the upper right poor countries with good women representation (Burundi); on the lower right there are poor countries with issues in women representation (Niger, Afganistan).  
+
+## Tea dataset
+```{r message=FALSE, warning=FALSE}
+library(FactoMineR)
+data(tea)
+str(tea)
+dim(tea)
+# data has 300 obs and 36 var
+
+
+```
+The data describes preferences of people onto how to drink tea. There are categorical and dichotomous variables, age is continious and categorical. There are data has 300 observations and 36 variables.
+
+```{r message=FALSE, warning=FALSE}
+keep <- c("age_Q", "sex", "How", "how", "frequency", "healthy")
+tea <- dplyr::select(tea, one_of(keep))
+gather(tea) %>% ggplot(aes(value)) + facet_wrap("key", scales = "free") + geom_bar()
+```
+Young people are more frequent to drink tea; most people drink tea from 1 to 2 times pre day; people believe that tea is healthy; majority makes tea with tea bags and drink tea with milk; there are slightly more of women who drink tea.  
+
+
+
+Next, I will do multiple correspondence analysis and visualize it
+```{r message=FALSE, warning=FALSE}
+# multiple correspondence analysis
+MCA <- MCA(tea, graph = FALSE)
+
+# summary of the model
+summary(MCA)
+
+# visualize MCA
+plot(MCA, invisible=c("ind"), habillage = "quali", graph.type = "classic")
+```
+All the dimensions explain quite equal variation.  
+The distance between the categories tells us how similar they are. Therefore, 25-34 y.o. people prefer unpackged tea 1 tim per day. The majority of 25-35 people t=whoo are drinking tea are males. Females prefer to drink tea 2 times per day and more likely to drink tea made of tea bag. People from 35 to 44 and from 45 to 59 tend to drink bag tea and believe that it is healthy to drink tea. The older people the more they tend to drink tea with lemon or milk. Also, old peopel are more likely to believe that to drink tea is healthy. Category "other" is obvious outliner.  
