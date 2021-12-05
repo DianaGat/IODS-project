@@ -142,5 +142,5 @@ summary(MCA)
 # visualize MCA
 plot(MCA, invisible=c("ind"), habillage = "quali", graph.type = "classic")
 ```
-All the dimensions explain quite equal variation.  
+All the dimensions explain quite equal amount of variation. To explain 50% of variation we will need 6 dimensions. We are suggested to have 3 dimensions, where the first one would explain sex; second - age_Q, How; third - how, frequency; healthy is almost equaly explained by first and second clusters. Therefore, we can say that if people dring tea alone or with milk or lemon, it is correlated to age; frequency is correlated to the way people make tea (bag or not).     
 The distance between the categories tells us how similar they are. Therefore, 25-34 y.o. people prefer unpackged tea 1 tim per day. The majority of 25-35 people t=whoo are drinking tea are males. Females prefer to drink tea 2 times per day and more likely to drink tea made of tea bag. People from 35 to 44 and from 45 to 59 tend to drink bag tea and believe that it is healthy to drink tea. The older people the more they tend to drink tea with lemon or milk. Also, old peopel are more likely to believe that to drink tea is healthy. Category "other" is obvious outliner.  
