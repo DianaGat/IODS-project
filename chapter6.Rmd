@@ -1,0 +1,257 @@
+# Ex 6. Analysis of longitudinal data  
+## RATS data analysis  
+
+The data for this analysis consists of weight observations over 64 days of rats separatet for three groups.  
+```{r message=FALSE, warning=FALSE}
+library(dplyr)
+library(tidyr)
+library(ggplot2)
+```
+Firstly, we will implement the analyses of Chapter 8 of MABS using the RATS data.   
+
+```{r message=FALSE, warning=FALSE}
+# read the RATS data
+# load the data (saved in long form)
+rats_long <- read.table("C:/R scripts/IODS-project/data/rats_long.txt", header = TRUE)
+
+#wide format data
+rats <- read.table("https://raw.githubusercontent.com/KimmoVehkalahti/MABS/master/Examples/data/rats.txt", sep = "\t", header = T)
+
+str(rats_long)
+str(rats)
+```
+
+```{r message=FALSE, warning=FALSE}
+# making factors out of ID and Group variables
+rats_long$ID <- factor(rats_long$ID)
+rats_long$Group <- factor(rats_long$Group)
+
+str(rats_long) #done!
+
+# summary of the variables
+summary(rats_long)
+```
+To begin we shall plot the rats values for all rats, differentiating between the groups into which the rats have been randomized.  
+```{r}
+ggplot(rats_long, aes(x = Time, y = measurement, col=ID)) +
+  geom_line() + 
+  facet_grid(. ~ Group, labeller = label_both) +
+  scale_x_continuous(name = "Time (days)")+
+  scale_y_continuous(name = "Weight (grams)")
+```
+We clearly can see that there is difference between IDs: apprximetly IDs from 1 to 7 are below 300 grams, while the rest are above 400 grams. Groups one has the smallest increase while group 2 and 3 have bigger increase. In group 2, observation of a rat that has highes weith is a possible outliner in the group. Vissualy, it seems like group 2 has the biggest increase. We can see that some observations have simmilar patterns, ups and downs are having similar timing. There are also some individual changes for the obseravtions, but in general, weight of all the rets is increasing with time.  
+
+We want to observe how rats that had big wheit from the beggining end to have higher weight throughout the study. This phenomenon is generally referred to as tracking.  
+
+The tracking phenomenon can be seen more clearly in a plot of the standardized values of each observation.  
+
+
+```{r}
+# Standardize the scores
+rats_long <- rats_long %>%
+  group_by(Time) %>%
+  mutate( stdrats = (measurement - mean(measurement))/sd(measurement) ) %>%
+  ungroup()
+glimpse(rats_long)
+```
+Making a plot using standartizied values.
+```{r}
+ggplot(rats_long, aes(x = Time, y = stdrats, col=ID)) +
+  geom_line() + 
+  facet_grid(. ~ Group, labeller = label_both) +
+  scale_x_continuous(name = "Time (days)")+
+  scale_y_continuous(name = "standardized weight")
+```
+Now we can see that trend of the observations is not clear anymore while before we could clearely see the trend for growth.  
+
+Next, we will produce graphs showing average (mean) profiles for each treatment group along with some indication of the variation of the observations at each time point, in this case the standard error of mean.  
+```{r}
+# number of days, baseline (day 1) included
+n <- rats_long$Time %>% unique() %>% length()
+# summary data with mean and standard error of measurement by Group and time 
+summ_rats <- rats_long %>%
+  group_by(Group, Time) %>%
+  summarise( mean = mean(measurement), se = sd(measurement)/sqrt(n) ) %>%
+  ungroup()
+
+glimpse(summ_rats)
+
+# plotting the mean profiles with errorbars
+ggplot(summ_rats, aes(x = Time, y = mean)) +
+  geom_line(aes(col=Group)) +
+  geom_point(size=3) +
+  scale_shape_manual(values = c(1,2,3)) +
+  geom_errorbar(aes(ymin=mean-se, ymax=mean+se, col = Group), width=0.3) +
+  theme(legend.position = c(0.9,0.4)) +
+  scale_x_continuous(name = "Time (days)", breaks = seq(0, 60, 10)) +
+  scale_y_continuous(name = "mean(Weight) +/- se(Weight)")
+
+# I changed the plot that was given on DataCamp out of curiosity and I ended up thinking that color representation of the groups is prettier :)
+```
+Observations from the group 2 have the biggest standart error possibly due to the otliner that was mentioned above. On the plot we can note the growth tendency in aoll the groups. It seems like rats from the first group had the smallest increase in weight in average. Observations from groups 2 and 3 have quite similar pattern of inrease and decrese. I suppose the outliner is affecting the average of the 2nd group.  
+
+Next, we look into differencies between groups and producing boxplots of the mean values of each group.
+```{r}
+# creating a summary data by Group and ID with mean as the summary variable (excluding the baseline)
+gr_summ_rats <- rats_long %>%
+  filter(Time > 1) %>%
+  group_by(Group, ID) %>%
+  summarise( mean=mean(measurement) ) %>%
+  ungroup()
+
+str(gr_summ_rats)
+```
+
+```{r message=FALSE, warning=FALSE}
+# draw a boxplot of the mean versus Group
+ggplot(gr_summ_rats, aes(x = Group, y = mean)) +
+  geom_boxplot() +
+  stat_summary(fun.y = "mean", geom = "point", shape=23, size=4, fill = "white") +
+  scale_y_continuous(name = "mean(Weight), 64 days")
+```
+As expected, we can see that one there is an otliner in the froup 2 since the variation is big and the distribution is notably skewed. The outliner must be higher than average.
+
+We will drop the outliner and vizualize the boxplot again.
+
+```{r message=FALSE, warning=FALSE}
+# create a new data by filtering the outlier and adjust the ggplot code the draw the plot again with the new data
+gr_summ_rats.nooutl <- gr_summ_rats %>% filter(mean < 570)
+
+ggplot(gr_summ_rats.nooutl, aes(x = Group, y = mean)) +
+  geom_boxplot() +
+  stat_summary(fun.y = "mean", geom = "point", shape=23, size=4, fill = "white") +
+  scale_y_continuous(name = "mean(Weight), 64 days")
+
+```
+Now, there is no visual overlap between the distributions.  
+To cgeck if there is a significant difference in the groups we should perfome a t-tese and calcualte confidence intervals. We use the data without the outlier. The t-test confirms the lack of any evidence for a group difference. Also the 95% confidence interval is wide and includes the zero, allowing for similar conclusions to be made.
+
+```{r}
+# add the baseline from the original data as a new variable to the summary data
+gr_summ_rats1 <- gr_summ_rats %>%
+  mutate(baseline = rats$WD1)
+
+# fit the linear model with the mean as the response 
+model <- lm(mean ~ baseline + Group, data = gr_summ_rats1)
+model
+# compute the analysis of variance table for the fitted model with anova()
+anova(model)
+```
+Analysis showed that there is no evidence of a group difference.
+
+## BPRS data analysis  
+The BPRS data, in which 40 male subjects were randomly assigned to one of two treatment groups and each subject was rated on the brief psychiatric rating scale (BPRS) measured before treatment began (week 0) and then at weekly intervals for eight weeks. The BPRS assesses the level of 18 symptom constructs such as hostility, suspiciousness, hallucinations and grandiosity; each of these is rated from one (not present) to seven (extremely severe). The scale is used to evaluate patients suspected of having schizophrenia.  
+```{r}
+# load the data (saved in long form)
+bprs_long <- read.table("C:/R scripts/IODS-project/data/bprs_long.txt", header = TRUE)
+
+#checking the data structure
+str(bprs_long)
+```
+
+```{r}
+
+# making factors out of treatment and subject variables
+bprs_long$treatment <- factor(bprs_long$treatment)
+bprs_long$subject <- factor(bprs_long$subject)
+
+# summaries of the variables
+summary(bprs_long)
+str(bprs_long) #data has the right form for the continuation of the analysis
+
+# graph showing all the data
+ggplot(bprs_long, aes(x = week, y = bprs, col = subject)) +
+  geom_line() +
+  facet_grid(. ~ treatment, labeller = label_both) +
+  scale_y_continuous(limits = c(min(bprs_long$bprs), max(bprs_long$bprs)))
+
+```
+We can see that the differences bettween the observations are big and there is not clear average trend. Roughly, we can recognize some decrese pattern here. One probable pattern is that bprs goes down untill week 5 ot 6 and then go up.  
+
+Next, e will plot the data, identifying the observations in each tretment group but ignoring the longitudinal nature of the data.
+
+```{r}
+ggplot(bprs_long, aes(x = week, y = bprs, group = subject))+ geom_point(aes(col = treatment))+  scale_x_continuous(name = "week", breaks = seq(0, 60, 10)) + scale_y_continuous(name = "bprs") + theme_bw()+ theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank())
+
+
+```
+We can see that observations for treatment 1 and 2 are overlapping. There is no big difference between groups.  
+Next, we will fit a linear mixed model to the data without taking the into account the repeated nature of the data.
+
+```{r}
+# create a regression model2
+model2 <- lm(bprs ~ week + treatment, data = bprs_long)
+model2
+# print out a summary of the model
+summary(model2)
+```
+Here, treatment 2 doesn`t give a significnat difference (p=0.661).  
+
+To begin the more formal analysis of the rat growth data, we will first fit the random intercept model for the same two explanatory variables: Time and Group. Fitting a random intercept model allows the linear regression fit for each rat to differ in intercept from other rats.
+```{r message=FALSE, warning=FALSE}
+library(lme4)
+# Create a random intercept model
+int_model <- lmer(bprs ~ week + treatment + (1 | subject), data = bprs_long, REML = FALSE)
+
+# Print the summary of the model
+summary(int_model)
+```
+The random intercept model is not often reliable when there is correlations between measurments.  
+Now we can move on to fit the random intercept and random slope model. Fitting a random intercept and random slope model allows the linear regression fits for each individual to differ in intercept but also in slope. This way it is possible to account for the individual differences in the rats' growth profiles, but also the effect of time.
+
+```{r}
+# create a random intercept and random slope model
+int_slope_model <- lmer(bprs ~ week + treatment + (week | subject), data = bprs_long, REML = FALSE)
+int_slope_model
+# print a summary of the model
+summary(int_slope_model)
+```
+
+```{r}
+# perform an ANOVA test on the two models
+anova(int_model, int_slope_model)
+```
+We can see that the random intercept and random slope model is a better fit for the data (p = 0.02) even though the significnace is quite close to the cut off.  
+
+Finally, we can fit a random intercept and slope model that allows for a group × time interaction.
+```{r message=FALSE, warning=FALSE}
+# create a random intercept and random slope model with the interaction
+final_model <- lmer(bprs ~ week * treatment + (week | treatment), data = bprs_long, REML = FALSE)
+final_model
+# print a summary of the model
+summary(final_model)
+```
+```{r}
+# perform an ANOVA test on the two models - with interaction and without
+anova(final_model, int_slope_model)
+```
+Here we get 1 degree of freedom and p = 1, thereofre, the last doesn`t provide additional information for the analysis. So, we will use the previous model for the analysis.
+```{r}
+# draw the plot of RATSL with the observed Weight values
+ggplot(bprs_long, aes(x = week, y = bprs, col = subject)) +
+  geom_line() +
+  scale_x_continuous(name = "Weeks") +
+  scale_y_continuous(name = "bprs") +
+  scale_linetype_manual(values = rep(1:10, times=4)) +
+  facet_grid(. ~ treatment, labeller = label_both)
+```
+
+```{r}
+# create a vector of the fitted values from the wanted model
+Fitted <- fitted(int_slope_model)
+
+# create a new column fitted to RATSL
+bprs_long <- bprs_long %>% mutate(fitted = Fitted)
+
+# draw the plot of RATSL with the Fitted values of weight
+ggplot(bprs_long, aes(x = week, y = Fitted, col = subject)) +
+  geom_line() +
+  scale_x_continuous(name = "Weeks") +
+  scale_y_continuous(name = "Fitted bprs")  +
+  scale_linetype_manual(values = rep(1:10, times=4)) +
+  facet_grid(. ~ treatment, labeller = label_both)
+```
+Looking at the model, it can be concluded that there is no tratment that worked better since the results for the both groups are having a similar pattern.  
+--------------------  
+That`s all. 
+Thank you for the course! It was enjoyable and interesting as I expected. The idea with GitHub and peer-review is brilliant :)
